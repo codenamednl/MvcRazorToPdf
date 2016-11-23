@@ -28,16 +28,13 @@ namespace MvcRazorToPdf
                     PdfWriter writer = PdfWriter.GetInstance(document, workStream);
                     writer.CloseStream = false;
 
-                    if (configureSettings != null)
-                    {
-                        configureSettings(writer, document);
-                    }
+                    configureSettings?.Invoke(writer, document);
                     document.Open();
 
 
-                    using (var reader = new StringReader(RenderRazorView(context, viewName)))
+                    using (var reader = new MemoryStream(Encoding.UTF8.GetBytes(RenderRazorView(context, viewName))))
                     {
-                        XMLWorkerHelper.GetInstance().ParseXHtml(writer, document, reader);
+                        XMLWorkerHelper.GetInstance().ParseXHtml(writer, document, reader, null, FontFactory.FontImp);
 
                         document.Close();
                         output = workStream.ToArray();
